@@ -7,6 +7,10 @@ MainWindow::MainWindow(QWidget *parent) :
 {
     ui->setupUi(this);
 
+    QList<QToolBar *> toolbars = this->findChildren<QToolBar *>();
+        for (int i = 0; i < toolbars.length(); i++)
+            toolbars.at(i)->hide();
+
     group = new QGroupBox;
 
     scaleLbl = new QLabel("Масштаб, %");
@@ -25,6 +29,7 @@ MainWindow::MainWindow(QWidget *parent) :
     buildGraphBut = new QPushButton("Построить график");
 
     table = new GraphTable;
+    drawWind = new DrawWindow;
 
     QHBoxLayout *layParAB = new QHBoxLayout;
     layParAB->addWidget(parALbl);
@@ -42,6 +47,7 @@ MainWindow::MainWindow(QWidget *parent) :
     layScale->addWidget(scaleLbl);
     layScale->addWidget(scaleLine);
     layScale->addWidget(setScaleBut);
+    layScale->addStretch(1);
 
     QVBoxLayout *layData = new QVBoxLayout;
     layData->addLayout(layParAB);
@@ -49,7 +55,13 @@ MainWindow::MainWindow(QWidget *parent) :
     layData->addWidget(buildGraphBut);
     layData->addWidget(table);
 
+    QScrollArea *scrollArea = new QScrollArea;
+    scrollArea->setBackgroundRole(QPalette::Light);
+    scrollArea->setWidget(drawWind);
+    scrollArea->setFixedSize(410, 410);
+
     QVBoxLayout *layGraph = new QVBoxLayout;
+    layGraph->addWidget(scrollArea);
     layGraph->addLayout(layScale);
     //+виджет с графиком
 
@@ -97,12 +109,10 @@ void MainWindow::PushButtonBuildGraph()
     bool ok;
     if (CheckInput()==true)
     {
-   //     QMessageBox::warning(this, "Ошибка!", "Херня", QMessageBox::Ok);
         CoordinatesList list;
         list.CalculatePoints(parALine->text().toInt(&ok, 10), parBLine->text().toInt(&ok, 10), parXMinLine->text().toInt(&ok, 10), parXMaxLine->text().toInt(&ok, 10));
-        //+вывести график функции
-         table->SetData(list.GetPointsList());
-
+        table->SetData(list.GetPointsList());
+        drawWind->SetCoordinates(list);
     }
 
 }

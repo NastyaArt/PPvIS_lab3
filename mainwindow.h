@@ -9,9 +9,11 @@
 #include <QLineEdit>
 #include <QLabel>
 #include <QMessageBox>
+#include <QDesktopWidget>
 
 #include "graphtable.h"
 #include "coordinateslist.h"
+#include "drawwindow.h"
 
 namespace Ui {
 class MainWindow;
@@ -30,6 +32,7 @@ private:
 
     GraphTable *table;
     CoordinatesList list;
+    DrawWindow *drawWind;
 
     QGroupBox *group;
 

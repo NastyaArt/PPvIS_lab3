@@ -4,14 +4,20 @@
 #include <QObject>
 #include "point.h"
 
-class CoordinatesList //: public QObject
+
+class CoordinatesList
 {
-   // Q_OBJECT
+
 public:
-   // explicit CoordinatesList(QObject *parent = 0);
+
     CoordinatesList();
     QList<Point> GetPointsList();
     void CalculatePoints(int A, int B, int XMin, int XMax);
+
+    float GetMinX();
+    float GetMinY();
+    float GetMaxX();
+    float GetMaxY();
 
 private:
     QList<Point> pointslist;

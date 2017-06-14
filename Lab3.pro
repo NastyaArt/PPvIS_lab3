@@ -16,11 +16,13 @@ SOURCES += main.cpp\
         mainwindow.cpp \
     graphtable.cpp \
     point.cpp \
-    coordinateslist.cpp
+    coordinateslist.cpp \
+    drawwindow.cpp
 
 HEADERS  += mainwindow.h \
     graphtable.h \
     point.h \
-    coordinateslist.h
+    coordinateslist.h \
+    drawwindow.h
 
 FORMS    += mainwindow.ui
