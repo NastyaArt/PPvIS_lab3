@@ -3,16 +3,21 @@
 DrawWindow::DrawWindow(QWidget *parent) : QWidget(parent)
 {
     setFixedSize(400, 400);
+    outputGraph = new QLabel(this);
+  //  outputGraph->setFixedSize(400, 400);
+    outputGraph->setBackgroundRole(QPalette::Light);
+    outputGraph->setScaledContents(true);
+
 
 }
 
 void DrawWindow::paintEvent(QPaintEvent *) {
 
-    QPainter p(this);
+    QPainter p;
 
     if (coordinates.GetPointsList().length()>0)
     {
-        p.scale(0.8,0.8);
+
         if (coordinates.GetMinX() >= 0) OxMin = -6*traitsDist;
         else OxMin = coordinates.GetMinX()*onePixel-traitsDist;
         if (coordinates.GetMinY() >= 0) OyMin = -6*traitsDist;
@@ -24,8 +29,13 @@ void DrawWindow::paintEvent(QPaintEvent *) {
         OxLength = (abs(OxMin)+abs(OxMax));
         OyLength = (abs(OyMin)+abs(OyMax));
 
+        setFixedSize(scl*OxLength, scl*OyLength);
+        outputGraph->setFixedSize(scl*OxLength, scl*OyLength);
+        QPixmap graph(scl*OxLength, scl*OyLength);
+        graph.fill(QColor(Qt::white));
+
+        p.begin(&graph);
         p.setWindow(QRect(OxMin, -OyMax, OxLength, OyLength));
-        setFixedSize(OxLength, OyLength);
 
         p.setPen(QPen(Qt::lightGray, 1, Qt::SolidLine));
         for (int i=OxMin; i<=OxMax; i+=traitsDist)
@@ -85,7 +95,8 @@ void DrawWindow::paintEvent(QPaintEvent *) {
            if (num!=0.0f)
            p.drawText(2*numShift, -num*onePixel-2*numShift, 2*numShift, 2*numShift, Qt::TextDontClip, QString::number(num));
         }
-       //сделать координатную сетку
+        p.end();
+        outputGraph->setPixmap(graph);
 
     }
 
@@ -94,6 +105,12 @@ void DrawWindow::paintEvent(QPaintEvent *) {
 void DrawWindow::SetCoordinates(CoordinatesList list)
 {
     coordinates = list;
+    repaint();
+}
+
+void DrawWindow::ScaledGraph(int scale)
+{
+    scl=(double)scale/(double)100;
     repaint();
 }
 

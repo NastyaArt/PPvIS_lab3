@@ -19,7 +19,7 @@ MainWindow::MainWindow(QWidget *parent) :
     parXMinLbl = new QLabel("Значения X от: ");
     parXMaxLbl= new QLabel(" до: ");
 
-    scaleLine = new QLineEdit;
+    scaleLine = new QLineEdit("100");
     parALine = new QLineEdit;
     parBLine = new QLineEdit;
     parXMinLine = new QLineEdit;
@@ -73,6 +73,7 @@ MainWindow::MainWindow(QWidget *parent) :
     setCentralWidget(group);
 
     connect(buildGraphBut, SIGNAL(clicked(bool)), this, SLOT(PushButtonBuildGraph()));
+    connect(setScaleBut, SIGNAL(clicked(bool)), this, SLOT(PushButtonScale()));
 }
 
 bool MainWindow::CheckInput()
@@ -115,6 +116,24 @@ void MainWindow::PushButtonBuildGraph()
         drawWind->SetCoordinates(list);
     }
 
+}
+
+bool MainWindow::CheckScaleInput()
+{
+    bool ok;
+    scaleLine->text().toInt(&ok, 10);
+    if (ok==false || scaleLine->text().toInt(&ok, 10)<10 || scaleLine->text().toInt(&ok, 10)>500)
+        QMessageBox::warning(this, "Ошибка!", "Введите корректные данные! /n Масштаб должен быть в интервале от 10% до 500%", QMessageBox::Ok);
+    else
+        return true;
+    return false;
+}
+
+void MainWindow::PushButtonScale()
+{
+    bool ok;
+    if (CheckScaleInput()==true)
+        drawWind->ScaledGraph(scaleLine->text().toInt(&ok, 10));
 }
 
 MainWindow::~MainWindow()

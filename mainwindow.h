@@ -52,10 +52,12 @@ private:
     QPushButton *buildGraphBut;
 
     bool CheckInput();
+    bool CheckScaleInput();
 
 public slots:
 
     void PushButtonBuildGraph();
+    void PushButtonScale();
 };
 
 #endif // MAINWINDOW_H
