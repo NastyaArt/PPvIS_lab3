@@ -6,6 +6,9 @@
 #include <QScrollArea>
 #include <QLabel>
 #include <QPixmap>
+#include <QWheelEvent>
+#include <QtMath>
+#include <QMessageBox>
 #include "coordinateslist.h"
 
 class DrawWindow : public QWidget
@@ -20,6 +23,7 @@ public:
 private:
     CoordinatesList coordinates;
     QLabel *outputGraph;
+    QScrollArea *scrollArea;
     const int onePixel=100;
     const int numShift=3;
     const int traitsDist=10;
@@ -30,11 +34,17 @@ private:
     int OxMax;
     int OyMax;
     double scl=1.0;
+    const double hScl=0.1;
+    const double minScl=0.1;
+    const double maxScl=2.0;
     const float h=0.5f;
+    void SetScaled();
 protected:
     void paintEvent(QPaintEvent *);
+    void wheelEvent(QWheelEvent *event);
 
 signals:
+    void ResetScale(double scale);
 
 public slots:
 };

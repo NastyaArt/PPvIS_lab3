@@ -3,10 +3,14 @@
 DrawWindow::DrawWindow(QWidget *parent) : QWidget(parent)
 {
     setFixedSize(400, 400);
-    outputGraph = new QLabel(this);
-  //  outputGraph->setFixedSize(400, 400);
+    outputGraph = new QLabel;
     outputGraph->setBackgroundRole(QPalette::Light);
     outputGraph->setScaledContents(true);
+    scrollArea = new QScrollArea(this);
+    scrollArea->setBackgroundRole(QPalette::Light);
+    scrollArea->setWidget(outputGraph);
+    scrollArea->setFixedSize(400, 400);
+
 
 
 }
@@ -29,7 +33,6 @@ void DrawWindow::paintEvent(QPaintEvent *) {
         OxLength = (abs(OxMin)+abs(OxMax));
         OyLength = (abs(OyMin)+abs(OyMax));
 
-        setFixedSize(scl*OxLength, scl*OyLength);
         outputGraph->setFixedSize(scl*OxLength, scl*OyLength);
         QPixmap graph(scl*OxLength, scl*OyLength);
         graph.fill(QColor(Qt::white));
@@ -102,15 +105,46 @@ void DrawWindow::paintEvent(QPaintEvent *) {
 
 }
 
+void DrawWindow::wheelEvent(QWheelEvent *event)
+{
+    int numDegrees = event->delta() / 8;
+    int numSteps = numDegrees / 15;
+    if (event->modifiers() == Qt::ShiftModifier)
+    {
+        scl=scl+numSteps*hScl;
+        if (scl<minScl) scl = minScl;
+        else if (scl>maxScl) scl = maxScl;
+        if (scl>=minScl && scl<=maxScl)
+        {
+            SetScaled();
+            emit ResetScale(scl);
+        }
+    }
+   /* else {
+        if (event->orientation() == Qt::Horizontal) {
+                 scrollHorizontally(numSteps);
+             } else {
+                 scrollVertically(numSteps);
+             }
+    }*/
+    event->accept();
+}
+
 void DrawWindow::SetCoordinates(CoordinatesList list)
 {
     coordinates = list;
     repaint();
 }
 
+void DrawWindow::SetScaled()
+{
+   outputGraph->setFixedSize(scl*OxLength, scl*OyLength);
+}
+
 void DrawWindow::ScaledGraph(int scale)
 {
     scl=(double)scale/(double)100;
-    repaint();
+    SetScaled();
+
 }
 

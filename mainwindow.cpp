@@ -55,15 +55,9 @@ MainWindow::MainWindow(QWidget *parent) :
     layData->addWidget(buildGraphBut);
     layData->addWidget(table);
 
-    QScrollArea *scrollArea = new QScrollArea;
-    scrollArea->setBackgroundRole(QPalette::Light);
-    scrollArea->setWidget(drawWind);
-    scrollArea->setFixedSize(410, 410);
-
     QVBoxLayout *layGraph = new QVBoxLayout;
-    layGraph->addWidget(scrollArea);
+    layGraph->addWidget(drawWind);
     layGraph->addLayout(layScale);
-    //+виджет с графиком
 
     QHBoxLayout *layAll = new QHBoxLayout;
     layAll->addLayout(layGraph);
@@ -74,6 +68,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
     connect(buildGraphBut, SIGNAL(clicked(bool)), this, SLOT(PushButtonBuildGraph()));
     connect(setScaleBut, SIGNAL(clicked(bool)), this, SLOT(PushButtonScale()));
+    connect(drawWind, SIGNAL(ResetScale(double)), this, SLOT(ResetScale(double)));
 }
 
 bool MainWindow::CheckInput()
@@ -122,8 +117,8 @@ bool MainWindow::CheckScaleInput()
 {
     bool ok;
     scaleLine->text().toInt(&ok, 10);
-    if (ok==false || scaleLine->text().toInt(&ok, 10)<10 || scaleLine->text().toInt(&ok, 10)>500)
-        QMessageBox::warning(this, "Ошибка!", "Введите корректные данные! /n Масштаб должен быть в интервале от 10% до 500%", QMessageBox::Ok);
+    if (ok==false || (scaleLine->text().toInt(&ok, 10)%10)!=0 || scaleLine->text().toInt(&ok, 10)<10 || scaleLine->text().toInt(&ok, 10)>200)
+        QMessageBox::warning(this, "Ошибка!", "Введите корректные данные! <br />  Масштаб должен быть в интервале от 10% до 500% и кратным 10", QMessageBox::Ok);
     else
         return true;
     return false;
@@ -134,6 +129,12 @@ void MainWindow::PushButtonScale()
     bool ok;
     if (CheckScaleInput()==true)
         drawWind->ScaledGraph(scaleLine->text().toInt(&ok, 10));
+}
+
+void MainWindow::ResetScale(double scale)
+{
+    scaleLine->setText(QString::number(scale*100));
+
 }
 
 MainWindow::~MainWindow()

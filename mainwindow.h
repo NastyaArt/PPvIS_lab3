@@ -58,6 +58,7 @@ public slots:
 
     void PushButtonBuildGraph();
     void PushButtonScale();
+    void ResetScale(double scale);
 };
 
 #endif // MAINWINDOW_H
