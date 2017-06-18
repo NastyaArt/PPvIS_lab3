@@ -14,14 +14,10 @@ DrawWindow::DrawWindow(QWidget *parent) : QWidget(parent)
 
 
 }
-
-void DrawWindow::paintEvent(QPaintEvent *) {
-
-    QPainter p;
-
+void DrawWindow::CalcParam()
+{
     if (coordinates.GetPointsList().length()>0)
     {
-
         if (coordinates.GetMinX() >= 0) OxMin = -6*traitsDist;
         else OxMin = coordinates.GetMinX()*onePixel-traitsDist;
         if (coordinates.GetMinY() >= 0) OyMin = -6*traitsDist;
@@ -32,11 +28,33 @@ void DrawWindow::paintEvent(QPaintEvent *) {
         else OyMax = ((int)(coordinates.GetMaxY()+0.5))*onePixel+traitsDist;
         OxLength = (abs(OxMin)+abs(OxMax));
         OyLength = (abs(OyMin)+abs(OyMax));
+    }
+}
 
-        outputGraph->setFixedSize(scl*OxLength, scl*OyLength);
+void DrawWindow::paintEvent(QPaintEvent *) {
+
+    if (coordinates.GetPointsList().length()>0)
+    {
+
+      /*  if (coordinates.GetMinX() >= 0) OxMin = -6*traitsDist;
+        else OxMin = coordinates.GetMinX()*onePixel-traitsDist;
+        if (coordinates.GetMinY() >= 0) OyMin = -6*traitsDist;
+        else OyMin = ((int)(coordinates.GetMinY()-0.5))*onePixel-traitsDist;
+        if (coordinates.GetMaxX() <= 0) OxMax = 6*traitsDist;
+        else OxMax = coordinates.GetMaxX()*onePixel+traitsDist;
+        if (coordinates.GetMaxY() <= 0) OyMax = 6*traitsDist;
+        else OyMax = ((int)(coordinates.GetMaxY()+0.5))*onePixel+traitsDist;
+        OxLength = (abs(OxMin)+abs(OxMax));
+        OyLength = (abs(OyMin)+abs(OyMax));
+*/
+     //   outputGraph->setFixedSize(scl*OxLength, scl*OyLength);
+        CalcParam();
+        SetScaled();
+
         QPixmap graph(scl*OxLength, scl*OyLength);
         graph.fill(QColor(Qt::white));
 
+        QPainter p;
         p.begin(&graph);
         p.setWindow(QRect(OxMin, -OyMax, OxLength, OyLength));
 
@@ -128,6 +146,18 @@ void DrawWindow::wheelEvent(QWheelEvent *event)
              }
     }*/
     event->accept();
+}
+
+void DrawWindow::mousePressEvent(QMouseEvent *e)
+{
+    mousePos = e->pos();
+}
+void DrawWindow::mouseMoveEvent(QMouseEvent *e)
+{
+    QPoint diff = e->pos() - mousePos;
+    mousePos = e->pos();
+    scrollArea->verticalScrollBar()->setValue(scrollArea->verticalScrollBar()->value() - diff.y());
+    scrollArea->horizontalScrollBar()->setValue(scrollArea->horizontalScrollBar()->value() - diff.x());
 }
 
 void DrawWindow::SetCoordinates(CoordinatesList list)
