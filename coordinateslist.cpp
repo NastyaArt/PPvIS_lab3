@@ -1,6 +1,5 @@
 #include "coordinateslist.h"
 
-//CoordinatesList::CoordinatesList(QObject *parent) : QObject(parent)
 CoordinatesList::CoordinatesList()
 {
 

@@ -32,10 +32,19 @@ private:
     const int traitsDist=10;
     int OxLength;
     int OyLength;
-    int OxMin;
-    int OyMin;
+   /* int OxMin;
+    double OyMin;
     int OxMax;
     int OyMax;
+    */
+    int OxMinPix;
+    int OxMaxPix;
+    int OyMinPix;
+    int OyMaxPix;
+    double OxMin;
+    double OxMax;
+    double OyMin;
+    double OyMax;
     double scl=1.0;
     const double hScl=0.1;
     const double minScl=0.1;

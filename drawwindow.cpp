@@ -11,23 +11,36 @@ DrawWindow::DrawWindow(QWidget *parent) : QWidget(parent)
     scrollArea->setWidget(outputGraph);
     scrollArea->setFixedSize(400, 400);
 
-
-
 }
 void DrawWindow::CalcParam()
 {
     if (coordinates.GetPointsList().length()>0)
     {
-        if (coordinates.GetMinX() >= 0) OxMin = -6*traitsDist;
-        else OxMin = coordinates.GetMinX()*onePixel-traitsDist;
-        if (coordinates.GetMinY() >= 0) OyMin = -6*traitsDist;
-        else OyMin = ((int)(coordinates.GetMinY()-0.5))*onePixel-traitsDist;
-        if (coordinates.GetMaxX() <= 0) OxMax = 6*traitsDist;
-        else OxMax = coordinates.GetMaxX()*onePixel+traitsDist;
-        if (coordinates.GetMaxY() <= 0) OyMax = 6*traitsDist;
-        else OyMax = ((int)(coordinates.GetMaxY()+0.5))*onePixel+traitsDist;
-        OxLength = (abs(OxMin)+abs(OxMax));
-        OyLength = (abs(OyMin)+abs(OyMax));
+        if (coordinates.GetMinX() >= 0) OxMin = -0.5;
+        else OxMin = coordinates.GetMinX();
+        if (coordinates.GetMaxX() <= 0) OxMax = 0.5;
+        else OxMax = coordinates.GetMaxX();
+        if (coordinates.GetMinY() >= 0) OyMin = -0.5;
+        else
+        {
+            OyMin = floor(coordinates.GetMinY());
+            if ((OyMin+0.5)<coordinates.GetMinY())
+                OyMin+=0.5;
+        }
+        if (coordinates.GetMaxY() <= 0) OyMax = 0.5;
+        else
+        {
+            OyMax = ceil(coordinates.GetMaxY());
+            if ((OyMax-0.5)>coordinates.GetMaxY())
+                OyMax-=0.5;
+        }
+        OxMinPix = OxMin*onePixel-traitsDist;
+        OxMaxPix = OxMax*onePixel+traitsDist;
+        OyMinPix = OyMin*onePixel-traitsDist;
+        OyMaxPix = OyMax*onePixel+traitsDist;
+
+        OxLength = (abs(OxMinPix)+abs(OxMaxPix));
+        OyLength = (abs(OyMinPix)+abs(OyMaxPix));
     }
 }
 
@@ -35,19 +48,6 @@ void DrawWindow::paintEvent(QPaintEvent *) {
 
     if (coordinates.GetPointsList().length()>0)
     {
-
-      /*  if (coordinates.GetMinX() >= 0) OxMin = -6*traitsDist;
-        else OxMin = coordinates.GetMinX()*onePixel-traitsDist;
-        if (coordinates.GetMinY() >= 0) OyMin = -6*traitsDist;
-        else OyMin = ((int)(coordinates.GetMinY()-0.5))*onePixel-traitsDist;
-        if (coordinates.GetMaxX() <= 0) OxMax = 6*traitsDist;
-        else OxMax = coordinates.GetMaxX()*onePixel+traitsDist;
-        if (coordinates.GetMaxY() <= 0) OyMax = 6*traitsDist;
-        else OyMax = ((int)(coordinates.GetMaxY()+0.5))*onePixel+traitsDist;
-        OxLength = (abs(OxMin)+abs(OxMax));
-        OyLength = (abs(OyMin)+abs(OyMax));
-*/
-     //   outputGraph->setFixedSize(scl*OxLength, scl*OyLength);
         CalcParam();
         SetScaled();
 
@@ -56,27 +56,27 @@ void DrawWindow::paintEvent(QPaintEvent *) {
 
         QPainter p;
         p.begin(&graph);
-        p.setWindow(QRect(OxMin, -OyMax, OxLength, OyLength));
+        p.setWindow(QRect(OxMinPix, -OyMaxPix, OxLength, OyLength));
 
         p.setPen(QPen(Qt::lightGray, 1, Qt::SolidLine));
-        for (int i=OxMin; i<=OxMax; i+=traitsDist)
+        for (int i=OxMinPix; i<=OxMaxPix; i+=traitsDist)
         {
-            p.drawLine(i, -OyMax, i, -OyMin);
+            p.drawLine(i, -OyMaxPix, i, -OyMinPix);
         }
-        for (int i=-OyMax; i<=-OyMin; i+=traitsDist)
+        for (int i=-OyMaxPix; i<=-OyMinPix; i+=traitsDist)
         {
-            p.drawLine(OxMin, i, OxMax, i);
+            p.drawLine(OxMinPix, i, OxMaxPix, i);
         }
 
         p.setPen(QPen(Qt::black, 1, Qt::SolidLine));
 
-        p.drawLine(OxMin, 0, OxMax, 0);
-        p.drawLine(0, -OyMin, 0, -OyMax);
+        p.drawLine(OxMinPix, 0, OxMaxPix, 0);
+        p.drawLine(0, -OyMinPix, 0, -OyMaxPix);
 
-        p.drawLine(OxMax, 0, OxMax-10, numShift*2);
-        p.drawLine(OxMax, 0, OxMax-10, -numShift*2);
-        p.drawLine(0, -OyMax, numShift*2, -OyMax+10);
-        p.drawLine(0, -OyMax, -numShift*2, -OyMax+10);
+        p.drawLine(OxMaxPix, 0, OxMaxPix-10, numShift*2);
+        p.drawLine(OxMaxPix, 0, OxMaxPix-10, -numShift*2);
+        p.drawLine(0, -OyMaxPix, numShift*2, -OyMaxPix+10);
+        p.drawLine(0, -OyMaxPix, -numShift*2, -OyMaxPix+10);
 
         p.setPen(QPen(Qt::green, 2, Qt::SolidLine));
         for (int i=0; i<coordinates.GetPointsList().length()-1; i++)
@@ -89,33 +89,26 @@ void DrawWindow::paintEvent(QPaintEvent *) {
             p.drawPoint(coordinates.GetPointsList().at(i).GetX()*onePixel,-coordinates.GetPointsList().at(i).GetY()*onePixel);
         }
         p.setPen(QPen(Qt::black, 1, Qt::SolidLine));
-        for (int i=OxMin+traitsDist; i<OxMax; i+=5*traitsDist)
+        for (int i=OxMinPix+traitsDist; i<OxMaxPix; i+=5*traitsDist)
         {
             p.drawLine(i, numShift, i, -numShift);
         }
-        for (int i=-OyMax+traitsDist; i<-OyMin; i+=5*traitsDist)
+        for (int i=-OyMaxPix+traitsDist; i<-OyMinPix; i+=5*traitsDist)
         {
             p.drawLine(numShift, i, -numShift, i);
         }
-        float numXMin, numXMax;
-        if (coordinates.GetMinX() >= 0) numXMin = -1.0;
-        else  numXMin =coordinates.GetMinX();
-        if (coordinates.GetMaxX() <= 0) numXMax = 1.0;
-        else  numXMax =coordinates.GetMaxX();
-        for (float num=numXMin; num<=numXMax; num+=h)
+        for (float num=OxMin; num<=OxMax; num+=h)
         {
             p.drawText(num*onePixel-2*numShift, numShift, 2*numShift, 2*numShift, Qt::TextDontClip, QString::number(num));
         }
-        float numYMin, numYMax;
-        if (coordinates.GetMinY() >= 0) numYMin = -1.0;
-        else  numYMin =((int)(coordinates.GetMinY()-0.5));
-        if (coordinates.GetMaxY() <= 0) numYMax = 1.0;
-        else  numYMax =((int)(coordinates.GetMaxY()+0.5));
-        for (float num=numYMin; num<=numYMax; num+=h)
+        for (float num=OyMin; num<=OyMax; num+=h)
         {
            if (num!=0.0f)
            p.drawText(2*numShift, -num*onePixel-2*numShift, 2*numShift, 2*numShift, Qt::TextDontClip, QString::number(num));
         }
+        p.drawText(OxMaxPix-3*numShift, -6*numShift, 2*numShift, 2*numShift, Qt::TextDontClip, "X");
+        p.drawText(-4*numShift, -OyMaxPix, 3*numShift, 3*numShift, Qt::TextDontClip, "У");
+
         p.end();
         outputGraph->setPixmap(graph);
 
@@ -138,13 +131,6 @@ void DrawWindow::wheelEvent(QWheelEvent *event)
             emit ResetScale(scl);
         }
     }
-   /* else {
-        if (event->orientation() == Qt::Horizontal) {
-                 scrollHorizontally(numSteps);
-             } else {
-                 scrollVertically(numSteps);
-             }
-    }*/
     event->accept();
 }
 
@@ -175,6 +161,5 @@ void DrawWindow::ScaledGraph(int scale)
 {
     scl=(double)scale/(double)100;
     SetScaled();
-
 }
 
